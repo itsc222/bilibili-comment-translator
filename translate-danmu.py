@@ -6,20 +6,21 @@ import numpy as np
 
 # def translate_text(text):
     
-path = '/Users/ischneid/bilibili-comment-translator/comments_and_danmu_orig/Danmu_Google_translated_lyrics.csv'
+path = '/Users/ischneid/bilibili-comment-translator/comments_and_danmu_orig/Danmu_Muz_translated_lyrics.csv'
 
-df_orig = pl.read_csv(path)
-
+df_orig = pl.read_csv(path, truncate_ragged_lines= True)
 
 file_title = path.split("/")[-1][:-4]
 target_path = f'/Users/ischneid/bilibili-comment-translator/comments_and_danmu_trans/{file_title}.csv'
 
 df_orig = df_orig[1: , 0:5]
+df_orig.cast({'/i': pl.Int64})
 
+print(df_orig)
 
 final_df_schema = {
     "id": pl.Int64,
-    "column_2": pl.Int64,
+    "column_2": str,
     "column_3": str,
     "time_stamps": str,
     "comment_text_chinese": str,
@@ -28,14 +29,13 @@ final_df_schema = {
 try:
    final_df = pl.read_csv(target_path)
 
-except FileNotFoundError:
+   print(final_df)
 
+except FileNotFoundError:
     final_df = pl.DataFrame(schema = final_df_schema)
     final_df.write_csv(target_path)
 
     # print(final_df)
-
-print(final_df)
     
 def translate_comments():
 
@@ -107,6 +107,8 @@ def translate_comments():
             # print(data)
 
             df = pl.DataFrame(data, schema = final_df_schema)
+            # print(df)
+            # quit()
 
             # print(df)
 
@@ -115,11 +117,13 @@ def translate_comments():
 
         except (TimeoutError):
             print("Time to start over.")
+        #     # quit()
             translate_comments()
         except Exception as e:
             print(f'An error occured: {e}. I will start again.')
-    if len(unique_index) == 0:
-        print("I'm done!")
+            # quit()
+            translate_comments()
+    print("I'm done!")
     return
         
 translate_comments()
